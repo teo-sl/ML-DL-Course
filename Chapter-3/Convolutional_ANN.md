@@ -159,6 +159,188 @@ Si aggiunge un bias e una funzione di attivazione.
 La dimensione di b non sarà pari a $W*x$. Il vettore b è di dimensiione C2, si aggiunge lo stesso valore per ogni feature map.
 
 
+---
+
+# Architettura
+
+Una rete è una serie del tipo
+
+conv -> pool -> conv -> pool -> .... -> dense -> dense
+
+I primi livelli trovano le feature, e poi la rete esegue della classificazione non lineare
+
+
+## Pooling layer
+
+Fa downsampling. In generale, si riduce la dimensione dell'immagine.
+
+Vi sono due tipi di pooling:
+
+
+
+1. Max: si suddivide la matrice in 2x2 square e ritorna il valore massimo.
+
+2.  average: si suddivide e si prende la media dei valori
+
+
+Perché?
+- l'immagien è più piccola e semplice da gestire
+- translational invariance (non mi interessa dove la feature appare, l'importante è che accada).
+
+Prendendo il massimo mi concentro sulle zone dove il pattern è presente. L'avg fa qualcosa di simile.
+
+Si possono avere box non di dimensione 2x2, solitamente non si fa così. Inoltre, questi box potrebbero sovrapporsi, ma anche questo non è comune.
+
+## Perché la coppia conv-pooling?
+
+Le cnn possono imparare feature in maniera gerarchica (prima i dettagli, poi aspetti più complessi). 
+
+Ad ogni conv-pool l'immagine diventa più piccola. Si noti che, all'inizio, il filtro è reltaivamente più piccolo dell'immagine, più si va avanti, più questo aumenta rispetto all'immagine, che nel frattempo sta diventando più piccola. 
+
+- l'input diventa piccolo
+- il filtro cerca per feature sempre più piccole (gestione gerarchica delle features)
+
+
+## Losing information? 
+Perdiamo informazioni spaziali. Non ci interessa dove l'ogetto si trovi, l'importante è che ci sia l'oggetto.
+
+Il numero di feature map tende ad aumentare al procedere. 
+
+Si perdono spatial info, ma si guadagnano features.
+
+## Hyperparameters
+
+- Filter size
+- feature map
+- pool size
+
+Vi è un pattern da seguire
+
+1. small filter rispetto all'immagine 2x2 3x3 5x5 7x7
+2. conv pooling sequences
+3. incrementa il numero di features map ad ogni livello: 32 64 128 128 ... 
+   
+Leggere tanti papers. 
+
+
+## Stride
+
+Un'alternativa al pooling è lo stride. Quanto distanti deve stare ogni finestra. 
+
+In pratica, si può saltare il pooling effettuando una convoluzione di tipo stride, come avevamo discusso in precedenza.
+
+Ogni pixel, molto probabilmente, avrà lo stesso valore di quello vicino. i.e. pixel vicini sono correlati. 
+
+Avere striding di 2 vuol dire saltare quei pixel. 
+
+Quindi possivamo avere:
+
+- conv pool con filter size uguali e aumento di features map
+- strided conv con stesso filter size e aumento di features map
+
+
+## Dense ANN part
+
+Per accettare l'immagine, dobbiamo usare flatten(). 
+
+Un'alternativa p il global max pooling layer
+
+### Global max pooling
+
+Le immagini non sono solitamente della stessa dimensione. 
+
+Perché solo flatten non va bene? Genera input di dimensione diversa.
+
+GMP: se l'immagine ha dimensione:
+$$ H \times W \times C$$
+
+L'output sarà un vettore di dimensione C. Ovvero, prende il massimo su ogni feature map. Usa l'idea del pooling: non mi serve sapere dove si trova la feature nell'immagine, basta che da qualche parte sia; qui la feature può trovarsi dappertutto su tutta la feature map. Perciò, può gestire qualsiasi immagine, di qualsiasi dimensione. 
+
+Esiste la versione che usa l'avg al posto del max.
+
+Tuttavia, con immagini troppo piccole, questo genera degli errori (ovvero, giunti al 2x2 non si può più ridurre la dimensione dell'immagine).
+
+La gestione del dense, dipende dal task che vogliamo risolvere.
+
+---
+
+# Code preparation
+
+
+- caricare i dati: fashion mnist (28x28 grayscale) and cifar-10 (color images 32x32)
+- build the model (functional api)
+- train
+- evaluate
+- prediction
+
+        tf.keras.datasets.fashion_mnist.load_data()
+
+        tf.keras.datasets.cifar10.load_data()
+
+        train and test <= load_data()
+
+fashion: Nx28x28 grayscale
+
+Serve aggiungere una dimensione in più di dimensone 1, Nx28x28X1
+
+CIFAR ha label di dimensione nx1, useremo flatten.
+
+
+## Functional API
+
+Nel modello di base si crea il modello aggiungendo argomenti nel costruttore.
+
+Nella versione funzionale
+
+                i = Input(shape(D,))
+                x=Dense(128,activation...)(i)
+                x=Dense(K,activation=...)(x)
+
+                model=Model(i,x)
+
+                ...
+                model.fit(...)
+                model.predict(...)
+
+
+
+E' possibile creare modelli con più input e output
+
+                model=Model(inputs=[i1,i2,i3],outputs=[o1,o2,o3])
+
+
+Conv2D
+
+        Conv2D(#output feature maps 32,
+                (3,3) # filter dimension (special dimension solo qualcosa del tipo 2x2 5x5 ecc...)
+                strides=2, #la velocità del passaggio sull'immagine
+                activation
+                padding=(default)'valid' 
+                'same' 'full')
+
+---
+
+## Dropout, si o no? 
+Si può aggiungere dropout regularization? si ma meglio non farlo. Si eliminano pixel. 
+
+
+
+
+
+
+
+
+
+
+
+
+
+   
+
+
+
+
+
 
 
 

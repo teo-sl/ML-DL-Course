@@ -325,9 +325,61 @@ Si può aggiungere dropout regularization? si ma meglio non farlo. Si eliminano 
 
 
 
+# Data augmentation
+
+Si creano on the fly le versioni modificate delle immagini. Si prende un batch e si fa la versione augmented.
+
+
+                from tensorflow.keras.preprocessing.image import ImageDataGenerator
+
+                data_generator=ImageDataGenerator(
+                        width_shift_range=0.1,
+                        heigth_shift_range=0.1,
+                        horizontal_flip=True
+                )
+
+Altri argomenti sono
+
+        rotation_range, width_shift_range, heigth_shift_range, brighteness_range, shear_range, zoom_range, horizontal_flip, vertical_flip
+
+
+Shearing è come tearing apart.
+
+Non sempre il flip è possibile, 6 e 9 sono cose diverse.
+
+
+Il prossimo step è flow
+
+        data_generator= ImageDataGenerator(...)
+        train_generator=data_generator.flow(
+                x_train,y_train,batch_size
+        )
+
+        steps_per_epoch = x_train.shape[0] // batch size
+
+        r = model.fit_generator(
+                train_generator,
+                steps_per_epoch=steps_per_epoch,
+                epoch=50
+        )
 
 
 
+# Dati non normalizzati
+
+Come rendere i dati normalizzati per ogni layer? Potremmo inserire un layer che effettua la normalizzazione del batch
+
+batch norm -> dense -> batch norm -> ...
+
+il batch norm fa la normalizzazione e la modifica tramite parametri che vengono sistemati automaticamente. 
+
+La batch norm riesce a effettuare la regularization. E' come se si aggiungesse del rumore, delle immagini con rumore, e perciò, diviene resistente al rumore.
+
+La batch norm non è solitamente usata trai dense, ma trai conv-conv e conv-flatten. 
+
+VGG RESNET
+
+batch normalization paper
 
 
 

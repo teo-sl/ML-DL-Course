@@ -10,4 +10,11 @@
 
 
 
+Activation functions:
+
+- sigmoid: binary classification
+- none: regression
+- softmax: multiclass classification
+
+
         

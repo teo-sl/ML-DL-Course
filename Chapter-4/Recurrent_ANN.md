@@ -352,6 +352,69 @@ r_t viene usato per capire quali parti di h_t-1 ricordare e quali dimenticare! R
 
 A differenza di una normale RNN ha la capacità di ricordare e dimenticare. Si usano binary logistic regression per realizzare tali funzionalità.  
 
+# LSTM
+
+L'LSTM ha tre input, x(t) h(t-1) e c(t-1), l'ultimo indica il cell state, che, insieme a h(t) rappresenta l'output della cella (c(t)). 
+
+Sono quindi necessari anche due stati iniziali $c_o$ e $h_o$.
+
+La formula per il funzionamento è questa.
+
+$$h_t = o_t \bigodot f_h(c_t)$$
+
+Ognuna delle componenti delle formule è, in pratica, un neurone, i.e. un logistic binary classifier.
+
+Ci sono più gate:
+
+- $f_t$ il forget gate
+- $i_t$ input/update gate
+- $o_t$ output gate
+- $c_t$ cell state
+  
+Il forget gate ci dice quanto del precedente valore c_t dimenticare
+
+$$f_h$$
+
+è un'altra funzione di attivazione, solitamente è una tanh.
+
+In tensorflow non si può scegliere $f_c,f_h$ separatamente.
+
+In sintesi:
+
+- f(t) neuron, binary classifier
+- i(t) neuron, binary classifier
+- o(t) neuron, binary classifier
+- c(t)=f(t) * c(t-1)+i(t)*SimpleRNN
+- h(t)=o(t)*tanh(c(t))
+
+## Code
+
+                i=Input(shape=(T,D))
+                x=LSTM(M)(i)
+                x=Dense(K)(x)
+                model=Model(i,x)
+
+## Options per RNN units
+
+Per ottenere tutti i valori precedenti, si deve aggiungere:
+
+                x = LSTM(M,return_sequences=True)(i)
+
+Vi è anche l'argomento:
+
+                return_state=True
+
+Nel caso di GRU non aggiunge nulla, nel caso di LSTM restituisce anche $c_T$
+
+
+## global max pooling 1d
+
+global max pooling 2d : HxWxC => C
+global max pooling 1d : TxM   => M
+
+
+
+
 
 
 

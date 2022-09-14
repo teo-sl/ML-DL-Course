@@ -413,7 +413,9 @@ global max pooling 2d : HxWxC => C
 global max pooling 1d : TxM   => M
 
 
+# Alternative way to forecast
 
+In alcuni casi può avere senso effettuare delle previsioni con un singolo step, altre volte no. 
 
 
 

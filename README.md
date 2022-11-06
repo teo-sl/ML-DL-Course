@@ -1,5 +1,5 @@
 # ML-DL-Course
-Notes and Jupyter notebooks which explore deep learning and Tensorflow framework.
+Notes and Jupyter notebooks exploring deep learning and Tensorflow framework.
 
 This repository includes:
 - notes concerning ANNs, CNNs, RNNs, NLP, tansfer learning, GANs
